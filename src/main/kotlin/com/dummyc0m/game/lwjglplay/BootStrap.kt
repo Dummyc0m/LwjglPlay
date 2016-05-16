@@ -17,11 +17,15 @@ fun main(args : Array<String>) {
     Main().run();
 }
 
-class Main(var errorCallback: GLFWErrorCallback, var keyCallback: GLFWKeyCallback, var window: Long) {
+class Main() {
+
+    var window: Long = 0L;
+
     fun run() {
         println("Hello LWJGL " + Version.getVersion() + "!");
 
         try {
+            init();
             loop();
 
             // Release window and window callbacks
@@ -37,11 +41,11 @@ class Main(var errorCallback: GLFWErrorCallback, var keyCallback: GLFWKeyCallbac
     fun init() {
         // Setup an error callback. The default implementation
         // will print the error message in System.err.
-        glfwSetErrorCallback(errorCallback = GLFWErrorCallback.createPrint(System.err));
+        GLFWErrorCallback.createPrint(System.err).set();
 
         // Initialize GLFW. Most GLFW functions will not work before doing this.
         if (!glfwInit()) {
-            throw new IllegalStateException("Unable to initialize GLFW");
+            throw IllegalStateException("Unable to initialize GLFW");
         }
 
         // Configure our window
@@ -49,27 +53,27 @@ class Main(var errorCallback: GLFWErrorCallback, var keyCallback: GLFWKeyCallbac
         glfwWindowHint(GLFW_VISIBLE, GL_FALSE); // the window will stay hidden after creation
         glfwWindowHint(GLFW_RESIZABLE, GL_TRUE); // the window will be resizable
 
-        int WIDTH = 300;
-        int HEIGHT = 300;
+        var WIDTH = 300;
+        var HEIGHT = 300;
 
         // Create the window
         window = glfwCreateWindow(WIDTH, HEIGHT, "Hello World!", NULL, NULL);
         if (window == NULL) {
-            throw new RuntimeException("Failed to create the GLFW window");
+            throw RuntimeException("Failed to create the GLFW window");
         }
 
         // Setup a key callback. It will be called every time a key is pressed, repeated or released.
-        glfwSetKeyCallback(window, keyCallback = new GLFWKeyCallback() {
-            @Override
-            public void invoke(long window, int key, int scancode, int action, int mods) {
+        var keyCallback: GLFWKeyCallback = object : GLFWKeyCallback() {
+            override fun invoke(window: Long, key: Int, scancode: Int, action: Int, mods: Int) {
                 if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
                     glfwSetWindowShouldClose(window, true); // We will detect this in our rendering loop
                 }
             }
-        });
+        }
+        glfwSetKeyCallback(window, keyCallback);
 
         // Get the resolution of the primary monitor
-        GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        val vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         // Center our window
         glfwSetWindowPos(
                 window,
@@ -86,7 +90,7 @@ class Main(var errorCallback: GLFWErrorCallback, var keyCallback: GLFWKeyCallbac
         glfwShowWindow(window);
     }
 
-    private void loop() {
+    fun loop() {
         // This line is critical for LWJGL's interoperation with GLFW's
         // OpenGL context, or any context that is managed externally.
         // LWJGL detects the context that is current in the current thread,
@@ -100,7 +104,7 @@ class Main(var errorCallback: GLFWErrorCallback, var keyCallback: GLFWKeyCallbac
         // Run the rendering loop until the user has attempted to close
         // the window or has pressed the ESCAPE key.
         while ( !glfwWindowShouldClose(window)) {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+            glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
             glfwSwapBuffers(window); // swap the color buffers
 
@@ -109,6 +113,4 @@ class Main(var errorCallback: GLFWErrorCallback, var keyCallback: GLFWKeyCallbac
             glfwPollEvents();
         }
     }
-
-
 }
