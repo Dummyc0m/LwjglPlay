@@ -12,7 +12,7 @@ import org.lwjgl.system.MemoryUtil
 /**
  * Created by Dummyc0m on 5/16/16.
  */
-class Window(val vsync: Boolean, val title: String, var height: Int, var width: Int) {
+class Window(val vsync: Boolean, val title: String, var width: Int, var height: Int) {
     var windowHandle: Long = 0L;
     var resized = false;
 
@@ -46,7 +46,7 @@ class Window(val vsync: Boolean, val title: String, var height: Int, var width: 
         }
         glfwSetKeyCallback(windowHandle, keyCallback);
 
-        glfwSetWindowSizeCallback(windowHandle, object: GLFWWindowSizeCallback() {
+        glfwSetWindowSizeCallback(windowHandle, object : GLFWWindowSizeCallback() {
             override fun invoke(window: Long, width: Int, height: Int) {
                 this@Window.width = width;
                 this@Window.height = height;
@@ -64,7 +64,7 @@ class Window(val vsync: Boolean, val title: String, var height: Int, var width: 
 
         glfwMakeContextCurrent(windowHandle);
         //vsync
-        if(vsync) {
+        if (vsync) {
             glfwSwapInterval(1);
         }
         glfwShowWindow(windowHandle);

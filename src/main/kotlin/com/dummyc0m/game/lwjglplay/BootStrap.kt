@@ -6,7 +6,7 @@ import com.dummyc0m.game.lwjglplay.game.TestGame
 /**
  * Created by Dummy on 5/15/16.
  */
-fun main(args : Array<String>) {
+fun main(args: Array<String>) {
     try {
         SharedLibraryLoader.load();
         val vSync = true;

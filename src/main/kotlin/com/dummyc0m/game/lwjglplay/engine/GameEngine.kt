@@ -5,7 +5,7 @@ import com.dummyc0m.game.lwjglplay.SharedLibraryLoader
 /**
  * Created by Dummyc0m on 5/16/16.
  */
-class GameEngine(windowTitle: String, width: Int, height: Int, val vSync: Boolean, val gameLogic: IGameLogic, var fps: Int, var tps: Int): Runnable {
+class GameEngine(windowTitle: String, width: Int, height: Int, val vSync: Boolean, val gameLogic: IGameLogic, var fps: Int, var tps: Int) : Runnable {
     private val gameLoopThread: Thread;
     private val window: Window;
     private val timer: Timer;
@@ -22,11 +22,13 @@ class GameEngine(windowTitle: String, width: Int, height: Int, val vSync: Boolea
             gameLoop();
         } catch (e: Exception) {
             e.printStackTrace();
+        } finally {
+            cleanup();
         }
     }
 
     fun start() {
-        if(SharedLibraryLoader.isMac) {
+        if (SharedLibraryLoader.isMac) {
             gameLoopThread.run();
         } else {
             gameLoopThread.start();
@@ -35,6 +37,10 @@ class GameEngine(windowTitle: String, width: Int, height: Int, val vSync: Boolea
 
     protected fun input() {
         gameLogic.input(window);
+    }
+
+    protected fun cleanup() {
+        gameLogic.cleanup();
     }
 
     protected fun update(interval: Float) {
@@ -49,7 +55,7 @@ class GameEngine(windowTitle: String, width: Int, height: Int, val vSync: Boolea
     private fun init() {
         window.init();
         timer.init();
-        gameLogic.init();
+        gameLogic.init(window);
     }
 
     private fun gameLoop() {

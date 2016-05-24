@@ -15,12 +15,7 @@ package com.dummyc0m.game.lwjglplay;
  * limitations under the License.
  ******************************************************************************/
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.UUID;
@@ -33,6 +28,7 @@ import java.util.zip.ZipFile;
  * @author mzechner
  * @author Nathan Sweet */
 public class SharedLibraryLoader {
+    static private final HashSet<String> loadedLibraries = new HashSet<String>();
     static public boolean isWindows = System.getProperty("os.name").contains("Windows");
     static public boolean isLinux = System.getProperty("os.name").contains("Linux");
     static public boolean isMac = System.getProperty("os.name").contains("Mac");
@@ -41,9 +37,9 @@ public class SharedLibraryLoader {
     static public boolean isARM = System.getProperty("os.arch").startsWith("arm");
     static public boolean is64Bit = System.getProperty("os.arch").equals("amd64")
             || System.getProperty("os.arch").equals("x86_64");
-
     // JDK 8 only.
     static public String abi = (System.getProperty("sun.arch.abi") != null ? System.getProperty("sun.arch.abi") : "");
+    static boolean load = true;
 
     static {
         String vm = System.getProperty("java.runtime.name");
@@ -60,8 +56,6 @@ public class SharedLibraryLoader {
         }
     }
 
-    static boolean load = true;
-
     static {
         // Don't extract natives if using JWS.
         try {
@@ -71,6 +65,17 @@ public class SharedLibraryLoader {
         } catch (Throwable ex) {
             load = true;
         }
+    }
+
+    private String nativesJar;
+
+    public SharedLibraryLoader () {
+    }
+
+    /** Fetches the natives from the given natives jar file. Used for testing a shared lib on the fly.
+     * @param nativesJar */
+    public SharedLibraryLoader (String nativesJar) {
+        this.nativesJar = nativesJar;
     }
 
     /** Extracts the LWJGL native libraries from the classpath and sets the "org.lwjgl.librarypath" system property. */
@@ -83,41 +88,33 @@ public class SharedLibraryLoader {
         if (!load) return;
 
         SharedLibraryLoader loader = new SharedLibraryLoader();
-        File nativesDir = null;
+        File nativesDir;
         try {
             if (SharedLibraryLoader.isWindows) {
                 nativesDir = loader.extractFile(SharedLibraryLoader.is64Bit ? "lwjgl.dll" : "lwjgl32.dll", null).getParentFile();
                 loader.extractFile(SharedLibraryLoader.is64Bit ? "glfw.dll" : "glfw32.dll", nativesDir.getName());
+                loader.extractFile(SharedLibraryLoader.is64Bit ? "jemalloc.dll" : "jemalloc32.dll", nativesDir.getName());
                 if (!disableOpenAL)
                     loader.extractFile(SharedLibraryLoader.is64Bit ? "OpenAL.dll" : "OpenAL32.dll", nativesDir.getName());
             } else if (SharedLibraryLoader.isMac) {
                 nativesDir = loader.extractFile("liblwjgl.dylib", null).getParentFile();
                 loader.extractFile("libglfw.dylib", nativesDir.getName());
+                loader.extractFile("libjemalloc.dylib", nativesDir.getName());
                 if (!disableOpenAL) loader.extractFile("libopenal.dylib", nativesDir.getName());
             } else if (SharedLibraryLoader.isLinux) {
-                nativesDir = loader.extractFile(SharedLibraryLoader.is64Bit ? "liblwjgl.so" : "liblwjgl32.so", null).getParentFile();
-                loader.extractFile(SharedLibraryLoader.is64Bit ? "libglfw.so" : "libglfw.so", nativesDir.getName());
+                nativesDir = loader.extractFile("liblwjgl32.so", null).getParentFile();
+                loader.extractFile("libglfw.so", nativesDir.getName());
+                loader.extractFile("libjemalloc.so", nativesDir.getName());
                 if (!disableOpenAL)
-                    loader.extractFile(SharedLibraryLoader.is64Bit ? "libopenal.so" : "libopenal32.so", nativesDir.getName());
+                    loader.extractFile("libopenal32.so", nativesDir.getName());
+            } else {
+                throw new RuntimeException("System unsupported");
             }
         } catch (Throwable ex) {
             throw new RuntimeException("Unable to extract LWJGL natives.", ex);
         }
         System.setProperty("org.lwjgl.librarypath", nativesDir.getAbsolutePath());
         load = false;
-    }
-
-    static private final HashSet<String> loadedLibraries = new HashSet<String>();
-
-    private String nativesJar;
-
-    public SharedLibraryLoader () {
-    }
-
-    /** Fetches the natives from the given natives jar file. Used for testing a shared lib on the fly.
-     * @param nativesJar */
-    public SharedLibraryLoader (String nativesJar) {
-        this.nativesJar = nativesJar;
     }
 
     /** Returns a CRC of the remaining bytes in the stream. */
