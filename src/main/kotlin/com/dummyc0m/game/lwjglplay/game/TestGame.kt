@@ -1,5 +1,6 @@
 package com.dummyc0m.game.lwjglplay.game
 
+import com.dummyc0m.game.lwjglplay.engine.Entity
 import com.dummyc0m.game.lwjglplay.engine.IGameLogic
 import com.dummyc0m.game.lwjglplay.engine.Window
 import com.dummyc0m.game.lwjglplay.engine.util.Mesh
@@ -56,7 +57,7 @@ class TestGame : IGameLogic {
 
     override fun render(window: Window) {
         window.setClearColor(color, color, color, 0.0f);
-        renderer.render(window, mesh);
+        renderer.render(window, Array(1, {Entity(mesh)}));
     }
 
     override fun cleanup() {

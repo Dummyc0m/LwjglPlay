@@ -29,7 +29,6 @@ class Shader {
         if (programId == 0) {
             throw Exception("Unable to create program");
         }
-
     }
 
     fun createVertexShader(shaderCode: String) {
@@ -70,7 +69,6 @@ class Shader {
         if (glGetProgrami(programId, GL_VALIDATE_STATUS) == 0) {
             System.err.println("Warning validating Shader, code: " + glGetShaderInfoLog(programId, 1024));
         }
-
     }
 
     fun bind() {

@@ -1,8 +1,10 @@
 package com.dummyc0m.game.lwjglplay.engine.util
 
 import org.lwjgl.BufferUtils
+import org.lwjgl.opengl.GL11
 import org.lwjgl.opengl.GL11.GL_FLOAT
 import org.lwjgl.opengl.GL15.*
+import org.lwjgl.opengl.GL20
 import org.lwjgl.opengl.GL20.glDisableVertexAttribArray
 import org.lwjgl.opengl.GL20.glVertexAttribPointer
 import org.lwjgl.opengl.GL30.*
@@ -55,10 +57,24 @@ class Mesh(positions: FloatArray, colors: FloatArray, indices: IntArray) {
         glDisableVertexAttribArray(0);
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         glDeleteBuffers(posVboId);
         glDeleteBuffers(idxVboId);
+        glDeleteBuffers(colorVboId);
 
         glBindVertexArray(0);
         glDeleteVertexArrays(vaoId);
+    }
+
+    fun render() {
+        glBindVertexArray(vaoId);
+        GL20.glEnableVertexAttribArray(0);
+        GL20.glEnableVertexAttribArray(1);
+
+        GL11.glDrawElements(GL11.GL_TRIANGLES, vertexCount, GL11.GL_UNSIGNED_INT, 0);
+
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+        glBindVertexArray(0);
     }
 }

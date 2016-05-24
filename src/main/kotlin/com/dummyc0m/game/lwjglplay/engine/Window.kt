@@ -1,12 +1,13 @@
 package com.dummyc0m.game.lwjglplay.engine
 
+import org.lwjgl.BufferUtils
 import org.lwjgl.glfw.Callbacks
-import org.lwjgl.glfw.GLFW.*;
+import org.lwjgl.glfw.GLFW.*
 import org.lwjgl.glfw.GLFWErrorCallback
+import org.lwjgl.glfw.GLFWFramebufferSizeCallback
 import org.lwjgl.glfw.GLFWKeyCallback
-import org.lwjgl.glfw.GLFWWindowSizeCallback
 import org.lwjgl.opengl.GL
-import org.lwjgl.opengl.GL11.*;
+import org.lwjgl.opengl.GL11.*
 import org.lwjgl.system.MemoryUtil
 
 /**
@@ -37,6 +38,12 @@ class Window(val vsync: Boolean, val title: String, var width: Int, var height: 
             throw RuntimeException("Failed to create the GLFW window");
         }
 
+        val widthBuf = BufferUtils.createIntBuffer(1);
+        val heightBuf = BufferUtils.createIntBuffer(1);
+        glfwGetFramebufferSize(windowHandle, widthBuf, heightBuf);
+        width = widthBuf.get();
+        height = heightBuf.get();
+
         val keyCallback: GLFWKeyCallback = object : GLFWKeyCallback() {
             override fun invoke(window: Long, key: Int, scancode: Int, action: Int, mods: Int) {
                 if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
@@ -46,20 +53,30 @@ class Window(val vsync: Boolean, val title: String, var width: Int, var height: 
         }
         glfwSetKeyCallback(windowHandle, keyCallback);
 
-        glfwSetWindowSizeCallback(windowHandle, object : GLFWWindowSizeCallback() {
-            override fun invoke(window: Long, width: Int, height: Int) {
-                this@Window.width = width;
-                this@Window.height = height;
+
+        //switch to using frame buffer size
+        glfwSetFramebufferSizeCallback(windowHandle, object : GLFWFramebufferSizeCallback() {
+            override fun invoke(p0: Long, p1: Int, p2: Int) {
+                this@Window.width = p1;
+                this@Window.height = p2;
                 this@Window.resized = true;
             }
-        });
+        })
 
-        val vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+//        glfwSetWindowSizeCallback(windowHandle, object : GLFWWindowSizeCallback() {
+//            override fun invoke(window: Long, width: Int, height: Int) {
+//                this@Window.width = width;
+//                this@Window.height = height;
+//                this@Window.resized = true;
+//            }
+//        });
+
+        val vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
         glfwSetWindowPos(
                 windowHandle,
-                (vidmode.width() - width) / 2,
-                (vidmode.height() - height) / 2
+                (vidMode.width() - width) / 2,
+                (vidMode.height() - height) / 2
         );
 
         glfwMakeContextCurrent(windowHandle);
@@ -68,7 +85,6 @@ class Window(val vsync: Boolean, val title: String, var width: Int, var height: 
             glfwSwapInterval(1);
         }
         glfwShowWindow(windowHandle);
-
 
         GL.createCapabilities();
 
