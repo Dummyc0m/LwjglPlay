@@ -89,6 +89,8 @@ class Window(val vsync: Boolean, val title: String, var width: Int, var height: 
         GL.createCapabilities();
 
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+        glEnable(GL_DEPTH_TEST);
     }
 
     fun destroy() {
