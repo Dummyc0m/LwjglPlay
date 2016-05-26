@@ -1,4 +1,4 @@
-package com.dummyc0m.game.lwjglplay.engine
+package com.dummyc0m.game.lwjglplay.game
 
 /**
  * Created by Dummyc0m on 5/24/16.

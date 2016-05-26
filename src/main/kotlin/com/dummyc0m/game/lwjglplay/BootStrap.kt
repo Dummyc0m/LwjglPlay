@@ -11,7 +11,7 @@ fun main(args: Array<String>) {
         SharedLibraryLoader.load();
         val vSync = true;
         val fps = 80;
-        val tps = 20;
+        val tps = 40;
         val gameLogic = TestGame();
         val gameEngine = GameEngine("GAME", 600, 480, vSync, gameLogic, fps, tps);
         gameEngine.start();

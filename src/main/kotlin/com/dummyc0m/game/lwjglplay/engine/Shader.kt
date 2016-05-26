@@ -1,4 +1,4 @@
-package com.dummyc0m.game.lwjglplay.engine.util
+package com.dummyc0m.game.lwjglplay.engine
 
 import org.joml.Matrix4f
 import org.lwjgl.BufferUtils
@@ -106,6 +106,10 @@ class Shader {
         val fb: FloatBuffer = BufferUtils.createFloatBuffer(16);
         value.get(fb);
         glUniformMatrix4fv(uniformMap[uniformName]!!.toInt(), false, fb);
+    }
+
+    fun setUniform(uniformName: String, value: Int) {
+        glUniform1i(uniformMap.get(uniformName)!!, value);
     }
 
     companion object {

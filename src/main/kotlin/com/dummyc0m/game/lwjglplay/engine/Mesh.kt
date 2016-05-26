@@ -1,4 +1,4 @@
-package com.dummyc0m.game.lwjglplay.engine.util
+package com.dummyc0m.game.lwjglplay.engine
 
 import org.lwjgl.BufferUtils
 import org.lwjgl.opengl.GL11
@@ -8,11 +8,13 @@ import org.lwjgl.opengl.GL20
 import org.lwjgl.opengl.GL20.glDisableVertexAttribArray
 import org.lwjgl.opengl.GL20.glVertexAttribPointer
 import org.lwjgl.opengl.GL30.*
+import org.lwjgl.opengl.GL11.*
+import org.lwjgl.opengl.GL13.*
 
 /**
  * Created by Dummyc0m on 5/18/16.
  */
-class Mesh(positions: FloatArray, colors: FloatArray, indices: IntArray) {
+class Mesh(positions: FloatArray, textureCoords: FloatArray, indices: IntArray, val texture: Texture) {
     val vaoId: Int;
 
     private val posVboId: Int;
@@ -37,11 +39,11 @@ class Mesh(positions: FloatArray, colors: FloatArray, indices: IntArray) {
         glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 
         colorVboId = glGenBuffers();
-        val colorBuffer = BufferUtils.createFloatBuffer(colors.size);
-        colorBuffer.put(colors).flip();
+        val colorBuffer = BufferUtils.createFloatBuffer(textureCoords.size);
+        colorBuffer.put(textureCoords).flip();
         glBindBuffer(GL_ARRAY_BUFFER, colorVboId);
         glBufferData(GL_ARRAY_BUFFER, colorBuffer, GL_STATIC_DRAW);
-        glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, 0);
+        glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0);
 
         idxVboId = glGenBuffers();
         val indicesBuffer = BufferUtils.createIntBuffer(indices.size);
@@ -62,11 +64,16 @@ class Mesh(positions: FloatArray, colors: FloatArray, indices: IntArray) {
         glDeleteBuffers(idxVboId);
         glDeleteBuffers(colorVboId);
 
+        texture.cleanup();
+
         glBindVertexArray(0);
         glDeleteVertexArrays(vaoId);
     }
 
     fun render() {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture.textureId);
+
         glBindVertexArray(vaoId);
         GL20.glEnableVertexAttribArray(0);
         GL20.glEnableVertexAttribArray(1);

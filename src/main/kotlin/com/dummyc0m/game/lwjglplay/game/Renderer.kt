@@ -1,7 +1,7 @@
 package com.dummyc0m.game.lwjglplay.game
 
 import com.dummyc0m.game.lwjglplay.engine.*
-import com.dummyc0m.game.lwjglplay.engine.util.Shader
+import com.dummyc0m.game.lwjglplay.engine.Shader
 import org.lwjgl.opengl.GL11.*
 
 /**
@@ -10,6 +10,7 @@ import org.lwjgl.opengl.GL11.*
 class Renderer {
     private var shaderProgram: Shader = Shader();
     private val transformation: Transformation = Transformation();
+    val camera: Camera = Camera();
 
     fun init(window: Window) {
         shaderProgram.init();
@@ -20,28 +21,28 @@ class Renderer {
         transformation.setProjectionMatrix(FOV, window.width, window.height, Z_NEAR, Z_FAR);
 
         shaderProgram.createUniform("projectionMatrix");
-        shaderProgram.createUniform("worldMatrix");
+        shaderProgram.createUniform("modelViewMatrix");
+        shaderProgram.createUniform("texture_sampler");
     }
 
     fun render(window: Window, entities: Array<Entity>) {
         clear();
+
+        shaderProgram.bind();
 
         if (window.resized) {
             glViewport(0, 0, window.width, window.height);
             window.resized = false;
             transformation.setProjectionMatrix(FOV, window.width, window.height, Z_NEAR, Z_FAR);
         }
+        val viewMatrix = transformation.getViewMatrix(camera);
 
-        shaderProgram.bind();
         shaderProgram.setUniform("projectionMatrix", transformation.projectionMatrix);
+        shaderProgram.setUniform("texture_sampler", 0);
 
         for(entity in entities) {
-            val worldMatrix =
-            transformation.getWorldMatrix(
-                    entity.translation,
-                    entity.rotation,
-                    entity.scale);
-            shaderProgram.setUniform("worldMatrix", worldMatrix);
+            val modelViewMatrix = transformation.getModelViewMatrix(entity, viewMatrix);
+            shaderProgram.setUniform("modelViewMatrix", modelViewMatrix);
 
             entity.mesh.render();
         }
