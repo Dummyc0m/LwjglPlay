@@ -1,5 +1,6 @@
 package com.dummyc0m.game.lwjglplay.engine
 
+import com.dummyc0m.game.lwjglplay.engine.render.Camera
 import org.joml.Matrix4f
 import org.joml.Vector3f
 

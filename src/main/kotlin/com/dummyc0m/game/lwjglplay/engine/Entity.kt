@@ -1,6 +1,6 @@
 package com.dummyc0m.game.lwjglplay.engine
 
-import com.dummyc0m.game.lwjglplay.engine.Mesh
+import com.dummyc0m.game.lwjglplay.engine.render.Mesh
 import org.joml.Vector3f
 
 /**

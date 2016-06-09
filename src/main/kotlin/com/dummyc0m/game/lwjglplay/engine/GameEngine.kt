@@ -1,6 +1,7 @@
 package com.dummyc0m.game.lwjglplay.engine
 
 import com.dummyc0m.game.lwjglplay.SharedLibraryLoader
+import com.dummyc0m.game.lwjglplay.engine.util.Timer
 
 /**
  * Created by Dummyc0m on 5/16/16.
@@ -8,11 +9,13 @@ import com.dummyc0m.game.lwjglplay.SharedLibraryLoader
 class GameEngine(windowTitle: String, width: Int, height: Int, val vSync: Boolean, val gameLogic: IGameLogic, var fps: Int, var tps: Int) : Runnable {
     private val gameLoopThread: Thread;
     private val window: Window;
+    private val mouseInput: MouseInput;
     private val timer: Timer;
 
     init {
         gameLoopThread = Thread(this, "GAME_LOOP_THREAD");
         window = Window(vSync, windowTitle, width, height);
+        mouseInput = MouseInput();
         timer = Timer();
     }
 
@@ -36,7 +39,8 @@ class GameEngine(windowTitle: String, width: Int, height: Int, val vSync: Boolea
     }
 
     protected fun input() {
-        gameLogic.input(window);
+        mouseInput.input(window);
+        gameLogic.input(window, mouseInput);
     }
 
     protected fun cleanup() {
@@ -44,7 +48,7 @@ class GameEngine(windowTitle: String, width: Int, height: Int, val vSync: Boolea
     }
 
     protected fun update(interval: Float) {
-        gameLogic.update(interval);
+        gameLogic.update(interval, mouseInput);
     }
 
     protected fun render() {
@@ -54,6 +58,7 @@ class GameEngine(windowTitle: String, width: Int, height: Int, val vSync: Boolea
 
     private fun init() {
         window.init();
+        mouseInput.init(window);
         timer.init();
         gameLogic.init(window);
     }

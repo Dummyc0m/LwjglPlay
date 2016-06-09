@@ -1,7 +1,11 @@
 package com.dummyc0m.game.lwjglplay.game
 
-import com.dummyc0m.game.lwjglplay.engine.*
-import com.dummyc0m.game.lwjglplay.engine.Shader
+import com.dummyc0m.game.lwjglplay.engine.Entity
+import com.dummyc0m.game.lwjglplay.engine.Transformation
+import com.dummyc0m.game.lwjglplay.engine.Window
+import com.dummyc0m.game.lwjglplay.engine.render.Camera
+import com.dummyc0m.game.lwjglplay.engine.render.Shader
+import com.dummyc0m.game.lwjglplay.engine.util.Util
 import org.lwjgl.opengl.GL11.*
 
 /**
@@ -14,15 +18,18 @@ class Renderer {
 
     fun init(window: Window) {
         shaderProgram.init();
-        shaderProgram.createVertexShader(Shader.loadResource("/vertex.glsl"));
-        shaderProgram.createFragmentShader(Shader.loadResource("/fragment.glsl"));
+        shaderProgram.createVertexShader(Util.loadResource("/vertex.glsl"));
+        shaderProgram.createFragmentShader(Util.loadResource("/fragment.glsl"));
         shaderProgram.link();
 
-        transformation.setProjectionMatrix(FOV, window.width, window.height, Z_NEAR, Z_FAR);
+        transformation.setProjectionMatrix(FOV, window.width, window.height, Z_NEAR, Z_FAR)
 
         shaderProgram.createUniform("projectionMatrix");
         shaderProgram.createUniform("modelViewMatrix");
         shaderProgram.createUniform("texture_sampler");
+
+        shaderProgram.createUniform("color");
+        shaderProgram.createUniform("useColor");
     }
 
     fun render(window: Window, entities: Array<Entity>) {
@@ -43,6 +50,9 @@ class Renderer {
         for(entity in entities) {
             val modelViewMatrix = transformation.getModelViewMatrix(entity, viewMatrix);
             shaderProgram.setUniform("modelViewMatrix", modelViewMatrix);
+
+            shaderProgram.setUniform("color", entity.mesh.color);
+            shaderProgram.setUniform("useColor", if (entity.mesh.texture == null) 1 else 0);
 
             entity.mesh.render();
         }

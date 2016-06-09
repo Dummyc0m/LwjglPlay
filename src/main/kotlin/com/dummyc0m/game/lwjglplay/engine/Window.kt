@@ -16,6 +16,26 @@ import org.lwjgl.system.MemoryUtil
 class Window(val vsync: Boolean, val title: String, var width: Int, var height: Int) {
     var windowHandle: Long = 0L;
     var resized = false;
+    private val keyCallback: GLFWKeyCallback
+    private val resizeCallback: GLFWFramebufferSizeCallback
+
+    init {
+        keyCallback = object : GLFWKeyCallback() {
+            override fun invoke(window: Long, key: Int, scancode: Int, action: Int, mods: Int) {
+                if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
+                    glfwSetWindowShouldClose(window, true);
+                }
+            }
+        }
+
+        resizeCallback = object : GLFWFramebufferSizeCallback() {
+            override fun invoke(p0: Long, p1: Int, p2: Int) {
+                this@Window.width = p1;
+                this@Window.height = p2;
+                this@Window.resized = true;
+            }
+        }
+    }
 
     fun init() {
         GLFWErrorCallback.createPrint(System.err).set();
@@ -44,24 +64,11 @@ class Window(val vsync: Boolean, val title: String, var width: Int, var height: 
         width = widthBuf.get();
         height = heightBuf.get();
 
-        val keyCallback: GLFWKeyCallback = object : GLFWKeyCallback() {
-            override fun invoke(window: Long, key: Int, scancode: Int, action: Int, mods: Int) {
-                if (key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE) {
-                    glfwSetWindowShouldClose(window, true);
-                }
-            }
-        }
         glfwSetKeyCallback(windowHandle, keyCallback);
 
 
         //switch to using frame buffer size
-        glfwSetFramebufferSizeCallback(windowHandle, object : GLFWFramebufferSizeCallback() {
-            override fun invoke(p0: Long, p1: Int, p2: Int) {
-                this@Window.width = p1;
-                this@Window.height = p2;
-                this@Window.resized = true;
-            }
-        })
+        glfwSetFramebufferSizeCallback(windowHandle, resizeCallback)
 
 //        glfwSetWindowSizeCallback(windowHandle, object : GLFWWindowSizeCallback() {
 //            override fun invoke(window: Long, width: Int, height: Int) {
@@ -84,11 +91,15 @@ class Window(val vsync: Boolean, val title: String, var width: Int, var height: 
         if (vsync) {
             glfwSwapInterval(1);
         }
+
         glfwShowWindow(windowHandle);
 
         GL.createCapabilities();
 
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+        //TODO remove wireframe
+        //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 
         glEnable(GL_DEPTH_TEST);
     }
