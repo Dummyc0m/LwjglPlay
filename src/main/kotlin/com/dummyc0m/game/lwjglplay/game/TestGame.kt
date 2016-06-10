@@ -4,7 +4,9 @@ import com.dummyc0m.game.lwjglplay.engine.Entity
 import com.dummyc0m.game.lwjglplay.engine.IGameLogic
 import com.dummyc0m.game.lwjglplay.engine.MouseInput
 import com.dummyc0m.game.lwjglplay.engine.Window
+import com.dummyc0m.game.lwjglplay.engine.render.Camera
 import com.dummyc0m.game.lwjglplay.engine.render.Mesh
+import com.dummyc0m.game.lwjglplay.engine.render.PointLight
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
 
@@ -14,11 +16,21 @@ import org.lwjgl.glfw.GLFW.*
 class TestGame : IGameLogic {
     private val renderer: Renderer;
     private val cameraInc: Vector3f;
+    val camera: Camera = Camera();
     private lateinit var entities: Array<Entity>;
+
+    private var ambientLight: Vector3f
+
+    private var pointLight: PointLight
 
     init {
         renderer = Renderer();
         cameraInc = Vector3f();
+        ambientLight = Vector3f(0.3f, 0.3f, 0.3f);
+        val lightColor = Vector3f(1f, 1f, 1f)
+        val lightPosition = Vector3f(0f, 2f, 1f)
+        val lightIntensity = 5.0f
+        pointLight = PointLight(lightColor, lightPosition, lightIntensity, PointLight.Attenuation(0.0f, 0.0f, 1.0f))
     }
 
     override fun init(window: Window) {
@@ -52,7 +64,6 @@ class TestGame : IGameLogic {
     }
 
     override fun update(interval: Float, mouseInput: MouseInput) {
-        val camera = renderer.camera;
         // Update camera position
         camera.movePos(cameraInc.x * CAMERA_POS_STEP,
                 cameraInc.y * CAMERA_POS_STEP,
@@ -66,7 +77,7 @@ class TestGame : IGameLogic {
     }
 
     override fun render(window: Window) {
-        renderer.render(window, entities);
+        renderer.render(window, entities, camera, ambientLight, pointLight);
     }
 
     override fun cleanup() {

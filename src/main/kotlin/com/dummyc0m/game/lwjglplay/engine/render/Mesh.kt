@@ -1,7 +1,6 @@
 package com.dummyc0m.game.lwjglplay.engine.render
 
 import com.dummyc0m.game.lwjglplay.engine.util.Util
-import com.dummyc0m.game.lwjglplay.game.DEFAULT_COLOR
 import org.joml.Vector2f
 import org.joml.Vector3f
 import org.lwjgl.BufferUtils
@@ -32,9 +31,7 @@ class Mesh(positions: FloatArray, textureCoords: FloatArray, normals: FloatArray
 
     val vertexCount: Int;
 
-    var texture: Texture? = null;
-
-    var color: Vector3f = DEFAULT_COLOR;
+    var material: Material = DEFAULT_MATERIAL
 
     init {
         vertexCount = indices.size;
@@ -84,17 +81,16 @@ class Mesh(positions: FloatArray, textureCoords: FloatArray, normals: FloatArray
         glDeleteBuffers(textureVboId);
         glDeleteBuffers(normalsVboId);
 
-        texture?.cleanup();
+        material.texture.cleanup();
 
         glBindVertexArray(0);
         glDeleteVertexArrays(vaoId);
     }
 
     fun render() {
-        val texture = this.texture;
-        if (texture != null) {
+        if (material.textured) {
             glActiveTexture(GL_TEXTURE0);
-            texture.bind();
+            material.texture.bind();
         }
 
         glBindVertexArray(vaoId);
@@ -208,3 +204,5 @@ class Mesh(positions: FloatArray, textureCoords: FloatArray, normals: FloatArray
         }
     }
 }
+
+val DEFAULT_MATERIAL = Material()

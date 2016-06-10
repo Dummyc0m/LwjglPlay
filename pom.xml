@@ -79,7 +79,7 @@
     <properties>
         <kotlin.version>1.0.2</kotlin.version>
         <lwjgl.version>3.0.0-SNAPSHOT</lwjgl.version>
-        <joml.version>1.7.1</joml.version>
+        <joml.version>1.8.0</joml.version>
         <pngdecoder.version> 1.0 </pngdecoder.version>
     </properties>
 

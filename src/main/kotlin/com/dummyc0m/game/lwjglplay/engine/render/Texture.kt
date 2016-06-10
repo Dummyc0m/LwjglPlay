@@ -8,16 +8,22 @@ import java.nio.ByteBuffer
 /**
  * Created by Dummy on 5/25/16.
  */
-class Texture(fileName: String) {
-    val textureId: Int;
+class Texture() {
+    private var _textureId: Int
+    val textureId: Int
+        get() = _textureId;
 
     init {
+        _textureId = -1
+    }
+
+    constructor(fileName: String) : this() {
         val decoder = PNGDecoder(Texture::class.java.getResourceAsStream(fileName));
         val buf = ByteBuffer.allocateDirect(4 * decoder.width * decoder.height);
         decoder.decode(buf, decoder.width * 4, PNGDecoder.Format.RGBA);
         buf.flip();
         // Create a new OpenGL texture
-        textureId = glGenTextures();
+        _textureId = glGenTextures();
         // Bind the texture
         glBindTexture(GL_TEXTURE_2D, textureId);
 
@@ -31,6 +37,8 @@ class Texture(fileName: String) {
     }
 
     fun cleanup() {
-        glDeleteTextures(textureId);
+        if (_textureId != -1) {
+            glDeleteTextures(textureId);
+        }
     }
 }

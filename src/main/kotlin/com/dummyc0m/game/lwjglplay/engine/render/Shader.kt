@@ -102,6 +102,37 @@ class Shader {
         uniformMap.put(uniformName, uniformLocation)
     }
 
+    fun createPointLightUniform(uniformName: String) {
+        createUniform(uniformName + ".color")
+        createUniform(uniformName + ".position")
+        createUniform(uniformName + ".intensity")
+        createUniform(uniformName + ".att.constant")
+        createUniform(uniformName + ".att.linear")
+        createUniform(uniformName + ".att.exponent")
+    }
+
+    fun createMaterialUniform(uniformName: String) {
+        createUniform(uniformName + ".color")
+        createUniform(uniformName + ".useColor")
+        createUniform(uniformName + ".reflectance")
+    }
+
+    fun setUniform(uniformName: String, pointLight: PointLight) {
+        setUniform(uniformName + ".color", pointLight.color)
+        setUniform(uniformName + ".position", pointLight.position)
+        setUniform(uniformName + ".intensity", pointLight.intensity)
+        val att = pointLight.attenuation
+        setUniform(uniformName + ".att.constant", att.constant)
+        setUniform(uniformName + ".att.linear", att.linear)
+        setUniform(uniformName + ".att.exponent", att.exponent)
+    }
+
+    fun setUniform(uniformName: String, material: Material) {
+        setUniform(uniformName + ".color", material.color)
+        setUniform(uniformName + ".useColor", if (material.textured) 0 else 1)
+        setUniform(uniformName + ".reflectance", material.reflectance)
+    }
+
     fun setUniform(uniformName: String, value: Matrix4f) {
         // Dump the matrix into a float buffer
         val fb: FloatBuffer = BufferUtils.createFloatBuffer(16);
@@ -115,5 +146,9 @@ class Shader {
 
     fun setUniform(uniformName: String, value: Int) {
         glUniform1i(uniformMap.get(uniformName)!!, value);
+    }
+
+    fun setUniform(uniformName: String, value: Float) {
+        glUniform1f(uniformMap.get(uniformName)!!, value)
     }
 }
